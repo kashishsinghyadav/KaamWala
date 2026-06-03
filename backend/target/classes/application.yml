@@ -1,0 +1,81 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: kaamwala-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kaamwala
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 6000ms
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:noreply@kaamwala.com}
+    password: ${MAIL_PASSWORD:changeme}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:c2VjdXJlLWp3dC1zZWNyZXQta2V5LWZvci1rYWFtd2FsYS1hcHBsaWNhdGlvbi0yMDI2LXByb2R1Y3Rpb24tcmVhZHk=}
+    expiration-ms: 604800000  # 7 days
+
+  file:
+    upload-dir: ./uploads
+    allowed-types: image/jpeg,image/png,image/webp,video/mp4
+    max-size-mb: 10
+
+  otp:
+    expiry-minutes: 5
+    length: 6
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+logging:
+  level:
+    com.kaamwala: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
