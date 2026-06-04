@@ -10,7 +10,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import com.example.kaamwala.data.SessionManager
+import com.example.kaamwala.data.model.Notification
+import kotlinx.coroutines.flow.asStateFlow
 
 sealed interface WorkerListUiState {
     data object Loading : WorkerListUiState
@@ -89,7 +94,29 @@ class WorkerDiscoveryViewModel(
                     SessionManager.userRole = auth.role
                     SessionManager.userName = auth.name
                     SessionManager.userPhone = auth.phone
-                    onSuccess(auth.newUser)
+                    SessionManager.userId = auth.userId
+                    
+                    if (auth.role == "WORKER") {
+                        try {
+                            val profileRes = repository.getWorkerProfile(auth.userId)
+                            if (profileRes.success && profileRes.data != null) {
+                                val profile = profileRes.data
+                                val hasPrice = profile.startingPrice > 0.0
+                                val hasSkills = profile.skills.isNotEmpty()
+                                if (hasPrice && hasSkills) {
+                                    onSuccess(false) // Bypass onboarding since profile exists
+                                } else {
+                                    onSuccess(true)  // Empty/incomplete profile -> go to register
+                                }
+                            } else {
+                                onSuccess(true)
+                            }
+                        } catch (e: Exception) {
+                            onSuccess(true)
+                        }
+                    } else {
+                        onSuccess(auth.newUser)
+                    }
                 } else {
                     onError(response.message ?: "Invalid OTP code")
                 }
@@ -184,6 +211,41 @@ class WorkerDiscoveryViewModel(
                 }
             } catch (e: Exception) {
                 _workerProfileState.value = WorkerProfileUiState.Error(e.message ?: "An unexpected error occurred")
+            }
+        }
+    }
+
+    private val _notificationsState = MutableStateFlow<List<Notification>>(emptyList())
+    val notificationsState: StateFlow<List<Notification>> = _notificationsState.asStateFlow()
+
+    fun fetchNotifications() {
+        viewModelScope.launch {
+            try {
+                val response = repository.getNotifications()
+                if (response.success && response.data != null) {
+                    _notificationsState.value = response.data.content
+                }
+            } catch (e: Exception) {
+                // Keep current or empty list
+            }
+        }
+    }
+
+    fun inquireWorker(
+        workerId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val response = repository.inquireWorker(workerId)
+                if (response.success) {
+                    onSuccess()
+                } else {
+                    onError(response.message ?: "Inquiry request failed")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "An unexpected error occurred")
             }
         }
     }

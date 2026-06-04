@@ -6,6 +6,7 @@ import com.example.kaamwala.data.model.PortfolioResponse
 import com.example.kaamwala.data.model.WorkerProfileResponse
 import com.example.kaamwala.data.model.AuthResponse
 import com.example.kaamwala.data.model.UpdateWorkerProfileRequest
+import com.example.kaamwala.data.model.Notification
 import com.example.kaamwala.data.remote.RetrofitClient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -41,6 +42,10 @@ interface DataRepository {
     suspend fun updateWorkerProfile(
         request: UpdateWorkerProfileRequest
     ): ApiResponse<WorkerProfileResponse>
+
+    suspend fun getNotifications(): ApiResponse<PagedResponse<Notification>>
+
+    suspend fun inquireWorker(workerId: String): ApiResponse<Unit?>
 }
 
 class DefaultDataRepository : DataRepository {
@@ -83,5 +88,13 @@ class DefaultDataRepository : DataRepository {
         request: UpdateWorkerProfileRequest
     ): ApiResponse<WorkerProfileResponse> {
         return RetrofitClient.workerApi.updateProfile(request)
+    }
+
+    override suspend fun getNotifications(): ApiResponse<PagedResponse<Notification>> {
+        return RetrofitClient.notificationApi.getNotifications()
+    }
+
+    override suspend fun inquireWorker(workerId: String): ApiResponse<Unit?> {
+        return RetrofitClient.notificationApi.inquireWorker(workerId)
     }
 }

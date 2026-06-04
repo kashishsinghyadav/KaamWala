@@ -8,5 +8,6 @@ object SessionManager {
     var userRole: String? = null
     var userName: String? = null
     var userPhone: String? = null
+    var userId: String? = null
     var userCity: String = "Kanpur" // Default selected city
 }

@@ -24,6 +24,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.kaamwala.entity.ServiceCategory;
+import com.kaamwala.entity.Notification;
+import com.kaamwala.service.NotificationService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -43,6 +45,7 @@ public class WorkerService {
     private final PortfolioItemRepository portfolioItemRepository;
     private final BookingRepository bookingRepository;
     private final ReviewRepository reviewRepository;
+    private final NotificationService notificationService;
 
     /**
      * Get a worker's full profile by user ID.
@@ -292,5 +295,22 @@ public class WorkerService {
                 .category(item.getCategory())
                 .createdAt(item.getCreatedAt())
                 .build();
+    }
+
+    /**
+     * Express interest/inquire about a worker.
+     */
+    @Transactional
+    public void inquireWorker(UUID customerId, UUID workerUserId) {
+        User customer = userRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", customerId));
+
+        User worker = userRepository.findById(workerUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", workerUserId));
+
+        String title = "New Service Inquiry";
+        String body = customer.getName() + " is interested in your services and wants to talk! Contact: " + customer.getPhone();
+
+        notificationService.createNotification(workerUserId, title, body, Notification.NotificationType.SYSTEM, customerId.toString());
     }
 }

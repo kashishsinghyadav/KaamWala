@@ -92,6 +92,18 @@ public class WorkerController {
     }
 
     /**
+     * Inquire a worker/express interest.
+     */
+    @PostMapping("/{id}/inquire")
+    @Operation(summary = "Inquire worker", description = "Express interest/inquire a worker for service")
+    public ResponseEntity<ApiResponse<Void>> inquireWorker(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UUID customerId) {
+        workerService.inquireWorker(customerId, id);
+        return ResponseEntity.ok(ApiResponse.success(null, "Inquiry sent to worker"));
+    }
+
+    /**
      * Update the authenticated worker's profile.
      */
     @PutMapping("/profile")

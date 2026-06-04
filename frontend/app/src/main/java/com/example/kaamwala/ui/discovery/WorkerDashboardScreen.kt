@@ -48,6 +48,31 @@ fun WorkerDashboardScreen(
     var successMessage by remember { mutableStateOf<String?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
+    val profileState by viewModel.workerProfileState.collectAsState()
+    LaunchedEffect(Unit) {
+        val uid = SessionManager.userId
+        if (uid != null) {
+            viewModel.loadProfile(uid)
+        }
+        viewModel.fetchNotifications()
+    }
+
+    var hasInitialized by remember { mutableStateOf(false) }
+    LaunchedEffect(profileState) {
+        if (profileState is WorkerProfileUiState.Success && !hasInitialized) {
+            val profile = (profileState as WorkerProfileUiState.Success).profile
+            name = profile.name
+            email = profile.email ?: ""
+            if (profile.serviceAreas.isNotEmpty()) {
+                city = profile.serviceAreas.first()
+            }
+            startingPrice = profile.startingPrice.toInt().toString()
+            bio = profile.bio ?: ""
+            selectedSkills = profile.skills.toSet()
+            hasInitialized = true
+        }
+    }
+
     val categories = remember {
         listOf(
             "CARPENTER" to "Carpenter",
@@ -166,7 +191,11 @@ fun WorkerDashboardScreen(
                             color = TextPrimary
                         )
                         Text(
-                            text = SessionManager.userPhone ?: "+919565522917",
+                            text = if (profileState is WorkerProfileUiState.Success) {
+                                "${(profileState as WorkerProfileUiState.Success).profile.totalJobs} jobs fulfilled"
+                            } else {
+                                "0 jobs fulfilled"
+                            },
                             fontSize = 13.sp,
                             color = TextSecondary,
                             modifier = Modifier.padding(top = 2.dp)
@@ -188,11 +217,102 @@ fun WorkerDashboardScreen(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "4.90",
+                            text = if (profileState is WorkerProfileUiState.Success) {
+                                String.format("%.2f", (profileState as WorkerProfileUiState.Success).profile.ratingAvg)
+                            } else {
+                                "4.90"
+                            },
                             color = TextPrimary,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Customer Inquiries Section
+            Text(
+                text = "Customer Inquiries",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            val notifications by viewModel.notificationsState.collectAsState()
+
+            if (notifications.isEmpty()) {
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = GlassBg),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(1.dp, GlassBorder, RoundedCornerShape(16.dp))
+                        .padding(vertical = 24.dp)
+                ) {
+                    Text(
+                        text = "No active service inquiries yet.",
+                        color = TextSecondary,
+                        fontSize = 13.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            } else {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    notifications.forEach { notification ->
+                        Card(
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = GlassBg.copy(alpha = 0.8f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(1.dp, GlassBorder.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = notification.title,
+                                        color = NeonCyan,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "New",
+                                        color = NeonMagenta,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(NeonMagenta.copy(alpha = 0.15f))
+                                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = notification.body,
+                                    color = TextPrimary,
+                                    fontSize = 12.sp,
+                                    lineHeight = 16.sp
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = notification.createdAt.take(16).replace("T", " "),
+                                    color = TextSecondary,
+                                    fontSize = 10.sp
+                                )
+                            }
+                        }
                     }
                 }
             }

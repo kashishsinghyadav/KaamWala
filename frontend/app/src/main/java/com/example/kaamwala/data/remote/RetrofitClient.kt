@@ -59,4 +59,8 @@ object RetrofitClient {
     val workerApi: WorkerApi by lazy {
         retrofit.create(WorkerApi::class.java)
     }
+
+    val notificationApi: NotificationApi by lazy {
+        retrofit.create(NotificationApi::class.java)
+    }
 }

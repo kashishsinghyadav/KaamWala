@@ -62,7 +62,8 @@ fun WorkerProfileScreen(
                 ProfileContent(
                     profile = uiState.profile,
                     portfolio = uiState.portfolio,
-                    onBack = onBack
+                    onBack = onBack,
+                    viewModel = viewModel
                 )
             }
             is WorkerProfileUiState.Error -> {
@@ -100,8 +101,14 @@ fun WorkerProfileScreen(
 fun ProfileContent(
     profile: WorkerProfileResponse,
     portfolio: List<PortfolioResponse>,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: WorkerDiscoveryViewModel
 ) {
+    var showInquiryDialog by remember { mutableStateOf(false) }
+    var inquirySuccess by remember { mutableStateOf(false) }
+    var inquiryError by remember { mutableStateOf<String?>(null) }
+    var isSending by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -397,7 +404,7 @@ fun ProfileContent(
                 }
 
                 Button(
-                    onClick = { /* Action to post job & invite */ },
+                    onClick = { showInquiryDialog = true },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = NeonMagenta
                     ),
@@ -414,6 +421,91 @@ fun ProfileContent(
                     )
                 }
             }
+        }
+
+        // Inquiry Alert Dialog
+        if (showInquiryDialog) {
+            AlertDialog(
+                onDismissRequest = { 
+                    if (!isSending) {
+                        showInquiryDialog = false 
+                        inquirySuccess = false
+                        inquiryError = null
+                    }
+                },
+                title = {
+                    Text(
+                        text = if (inquirySuccess) "Request Sent!" else "Book Service",
+                        color = TextPrimary,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = {
+                    Column {
+                        if (isSending) {
+                            CircularProgressIndicator(color = NeonCyan, modifier = Modifier.align(Alignment.CenterHorizontally))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("Sending inquiry to worker...", color = TextSecondary)
+                        } else if (inquirySuccess) {
+                            Text(
+                                text = "Your request has been successfully sent to ${profile.name}! They will view your request in their portal and reach out to you shortly.",
+                                color = TextSecondary
+                            )
+                        } else {
+                            Text(
+                                text = "Are you sure you want to send a service inquiry to ${profile.name}? They will receive your profile contact details to start work discussions.",
+                                color = TextSecondary
+                            )
+                            inquiryError?.let { err ->
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(err, color = NeonMagenta, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    if (inquirySuccess) {
+                        TextButton(
+                            onClick = { 
+                                showInquiryDialog = false
+                                inquirySuccess = false
+                            }
+                        ) {
+                            Text("Close", color = NeonCyan)
+                        }
+                    } else if (!isSending) {
+                        Button(
+                            onClick = {
+                                isSending = true
+                                inquiryError = null
+                                viewModel.inquireWorker(
+                                    workerId = profile.userId,
+                                    onSuccess = {
+                                        isSending = false
+                                        inquirySuccess = true
+                                    },
+                                    onError = { err ->
+                                        isSending = false
+                                        inquiryError = err
+                                    }
+                                )
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = NeonMagenta)
+                        ) {
+                            Text("Confirm", color = Color.White)
+                        }
+                    }
+                },
+                dismissButton = {
+                    if (!inquirySuccess && !isSending) {
+                        TextButton(onClick = { showInquiryDialog = false }) {
+                            Text("Cancel", color = TextSecondary)
+                        }
+                    }
+                },
+                containerColor = GlassBg,
+                modifier = Modifier.border(1.dp, GlassBorder, RoundedCornerShape(28.dp))
+            )
         }
     }
 }

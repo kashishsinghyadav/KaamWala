@@ -374,6 +374,31 @@ fun WorkerCard(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Skills tags
+                if (worker.skills.isNotEmpty()) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)
+                    ) {
+                        worker.skills.take(3).forEach { skill ->
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(NeonCyan.copy(alpha = 0.1f))
+                                    .border(0.5.dp, NeonCyan.copy(alpha = 0.3f), RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = skill.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() },
+                                    color = NeonCyan,
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+
                 // Service Areas tags
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
