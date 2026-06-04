@@ -102,7 +102,7 @@ public class AuthService {
         }
 
         // Find or create user
-        Optional<User> existingUser = userRepository.findByPhone(phone);
+        Optional<User> existingUser = userRepository.findByPhoneAndRole(phone, request.getRole());
         boolean isNewUser = existingUser.isEmpty();
 
         User user;

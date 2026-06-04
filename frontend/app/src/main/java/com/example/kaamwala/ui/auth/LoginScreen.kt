@@ -260,7 +260,11 @@ fun LoginScreen(
                                         if (isNewUser) {
                                             onNavigate(Register)
                                         } else {
-                                            onNavigate(Dashboard)
+                                            if (selectedRole == "WORKER") {
+                                                onNavigate(com.example.kaamwala.WorkerDashboard)
+                                            } else {
+                                                onNavigate(Dashboard)
+                                            }
                                         }
                                     },
                                     onError = { err ->
@@ -317,7 +321,7 @@ fun LoginScreen(
                     OutlinedButton(
                         onClick = {
                             viewModel.bypassLogin("WORKER") {
-                                onNavigate(Dashboard)
+                                onNavigate(com.example.kaamwala.WorkerDashboard)
                             }
                         },
                         shape = RoundedCornerShape(10.dp),

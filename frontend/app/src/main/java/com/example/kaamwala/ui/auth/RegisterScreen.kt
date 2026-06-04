@@ -51,7 +51,7 @@ fun RegisterScreen(
     var city by remember { mutableStateOf("Kanpur") }
     
     // Worker specific inputs
-    var selectedCategoryKey by remember { mutableStateOf("CARPENTER") }
+    var selectedSkills by remember { mutableStateOf(setOf("CARPENTER")) }
     var startingPrice by remember { mutableStateOf("") }
     var bio by remember { mutableStateOf("") }
 
@@ -77,7 +77,7 @@ fun RegisterScreen(
         )
     }
 
-    val cities = listOf("Kanpur", "Delhi NCR")
+    val cities = listOf("Kanpur", "Delhi NCR", "Mumbai", "Bengaluru", "Noida", "Gurgaon", "Lucknow")
 
     Box(
         modifier = modifier
@@ -232,46 +232,61 @@ fun RegisterScreen(
                 if (role == "WORKER") {
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Category Selection
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        val currentCategoryLabel = categories.find { it.first == selectedCategoryKey }?.second ?: ""
-                        OutlinedTextField(
-                            value = currentCategoryLabel,
-                            onValueChange = {},
-                            label = { Text("Primary Service Skill", color = TextSecondary) },
-                            readOnly = true,
-                            trailingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.ArrowDropDown,
-                                    contentDescription = "Select category",
-                                    tint = NeonCyan,
-                                    modifier = Modifier.clickable { if (!isLoading) categoryDropdownExpanded = true }
-                                )
-                            },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = TextPrimary,
-                                unfocusedTextColor = TextPrimary,
-                                focusedBorderColor = NeonCyan,
-                                unfocusedBorderColor = GlassBorder
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { if (!isLoading) categoryDropdownExpanded = true }
-                        )
-                        DropdownMenu(
-                            expanded = categoryDropdownExpanded,
-                            onDismissRequest = { categoryDropdownExpanded = false },
-                            modifier = Modifier.fillMaxWidth(0.8f).background(BackgroundNavy)
-                        ) {
-                            categories.forEach { (key, label) ->
-                                DropdownMenuItem(
-                                    text = { Text(label, color = TextPrimary) },
-                                    onClick = {
-                                        selectedCategoryKey = key
-                                        categoryDropdownExpanded = false
+                    // Category Selection (Multi-select Grid)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Select Service Categories (Choose all that apply)",
+                        color = TextSecondary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.align(Alignment.Start)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        val chunkedCategories = categories.chunked(2)
+                        chunkedCategories.forEach { rowCategories ->
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                rowCategories.forEach { (key, label) ->
+                                    val isSelected = selectedSkills.contains(key)
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .background(if (isSelected) NeonCyan.copy(alpha = 0.15f) else GlassBg)
+                                            .border(
+                                                1.dp,
+                                                if (isSelected) NeonCyan else GlassBorder,
+                                                RoundedCornerShape(10.dp)
+                                            )
+                                            .clickable {
+                                                selectedSkills = if (isSelected) {
+                                                    if (selectedSkills.size > 1) selectedSkills - key else selectedSkills
+                                                } else {
+                                                    selectedSkills + key
+                                                }
+                                            }
+                                            .padding(horizontal = 8.dp, vertical = 10.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = label,
+                                            color = if (isSelected) NeonCyan else TextPrimary,
+                                            fontSize = 11.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                            textAlign = TextAlign.Center
+                                        )
                                     }
-                                )
+                                }
+                                if (rowCategories.size < 2) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                }
                             }
                         }
                     }
@@ -342,12 +357,12 @@ fun RegisterScreen(
                                     name = name,
                                     email = email,
                                     bio = bio,
-                                    skills = listOf(selectedCategoryKey),
+                                    skills = selectedSkills.toList(),
                                     serviceAreas = listOf(city),
                                     startingPrice = price,
                                     onSuccess = {
                                         isLoading = false
-                                        onNavigate(Dashboard)
+                                        onNavigate(com.example.kaamwala.WorkerDashboard)
                                     },
                                     onError = { err ->
                                         errorMessage = err

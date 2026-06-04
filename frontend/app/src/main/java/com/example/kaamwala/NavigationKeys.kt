@@ -14,3 +14,5 @@ import kotlinx.serialization.Serializable
 @Serializable data object Login : NavKey
 
 @Serializable data object Register : NavKey
+
+@Serializable data object WorkerDashboard : NavKey

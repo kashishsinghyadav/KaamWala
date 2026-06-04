@@ -18,9 +18,11 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "users", indexes = {
-        @Index(name = "idx_user_phone", columnList = "phone", unique = true),
+        @Index(name = "idx_user_phone_role", columnList = "phone, role", unique = true),
         @Index(name = "idx_user_role", columnList = "role"),
         @Index(name = "idx_user_location", columnList = "latitude, longitude")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "unique_phone_role", columnNames = {"phone", "role"})
 })
 @Getter
 @Setter
@@ -37,7 +39,7 @@ public class User {
     @Column(name = "name", length = 100)
     private String name;
 
-    @Column(name = "phone", nullable = false, unique = true, length = 15)
+    @Column(name = "phone", nullable = false, length = 15)
     private String phone;
 
     @Column(name = "email", length = 150)
