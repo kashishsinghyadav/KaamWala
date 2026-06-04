@@ -80,4 +80,25 @@ public interface WorkerProfileRepository extends JpaRepository<WorkerProfile, UU
      */
     @Query("SELECT wp FROM WorkerProfile wp JOIN wp.skills s WHERE s = :category")
     Page<WorkerProfile> findBySkillsContaining(@Param("category") ServiceCategory category, Pageable pageable);
+
+    /**
+     * Search available workers by category and city.
+     *
+     * @param category the service category (optional)
+     * @param city     the city keyword to search in service areas (optional)
+     * @param pageable pagination and sorting parameters
+     * @return page of matching worker profiles
+     */
+    @Query("SELECT DISTINCT wp FROM WorkerProfile wp " +
+           "JOIN wp.user u " +
+           "LEFT JOIN wp.skills s " +
+           "LEFT JOIN wp.serviceAreas sa " +
+           "WHERE u.isActive = true " +
+           "AND wp.availabilityStatus = com.kaamwala.entity.WorkerProfile.AvailabilityStatus.AVAILABLE " +
+           "AND (:category IS NULL OR s = :category) " +
+           "AND (:city IS NULL OR LOWER(sa) LIKE LOWER(CONCAT('%', :city, '%')))")
+    Page<WorkerProfile> searchWorkers(
+            @Param("category") ServiceCategory category,
+            @Param("city") String city,
+            Pageable pageable);
 }

@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import com.kaamwala.entity.ServiceCategory;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,32 @@ import java.util.UUID;
 public class WorkerController {
 
     private final WorkerService workerService;
+
+    /**
+     * Search and discover workers with filters for category, city, and sorting.
+     */
+    @GetMapping
+    @Operation(summary = "Search workers", description = "Search and filter workers by category, city, and sort by price or ratings")
+    public ResponseEntity<ApiResponse<PagedResponse<WorkerProfileResponse>>> searchWorkers(
+            @RequestParam(required = false) ServiceCategory category,
+            @RequestParam(required = false) String city,
+            @RequestParam(defaultValue = "price_asc") String sortBy,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        
+        Sort sort;
+        if ("price_desc".equalsIgnoreCase(sortBy)) {
+            sort = Sort.by(Sort.Direction.DESC, "startingPrice");
+        } else if ("rating_desc".equalsIgnoreCase(sortBy)) {
+            sort = Sort.by(Sort.Direction.DESC, "ratingAvg");
+        } else {
+            sort = Sort.by(Sort.Direction.ASC, "startingPrice");
+        }
+
+        PagedResponse<WorkerProfileResponse> workers = workerService.searchWorkers(
+                category, city, page, size, sort);
+        return ResponseEntity.ok(ApiResponse.success(workers));
+    }
 
     /**
      * Find nearby available workers.

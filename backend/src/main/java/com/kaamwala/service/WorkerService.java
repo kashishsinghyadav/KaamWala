@@ -20,8 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.kaamwala.entity.ServiceCategory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -208,6 +210,33 @@ public class WorkerService {
     @Transactional(readOnly = true)
     public WorkerProfileResponse getWorkerStats(UUID workerId) {
         return getProfile(workerId);
+    }
+
+    /**
+     * Search workers by category, city, and sorting parameters.
+     */
+    @Transactional(readOnly = true)
+    public PagedResponse<WorkerProfileResponse> searchWorkers(
+            ServiceCategory category,
+            String city,
+            int page,
+            int size,
+            Sort sort) {
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<WorkerProfile> workerPage = workerProfileRepository.searchWorkers(category, city, pageable);
+
+        List<WorkerProfileResponse> content = workerPage.getContent().stream()
+                .map(wp -> mapToProfileResponse(wp.getUser(), wp))
+                .toList();
+
+        return PagedResponse.<WorkerProfileResponse>builder()
+                .content(content)
+                .page(workerPage.getNumber())
+                .size(workerPage.getSize())
+                .totalElements(workerPage.getTotalElements())
+                .totalPages(workerPage.getTotalPages())
+                .last(workerPage.isLast())
+                .build();
     }
 
     /**
