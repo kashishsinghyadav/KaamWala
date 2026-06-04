@@ -337,7 +337,7 @@ fun ProfileContent(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary,
-                    modifier = Modifier.padding(horizontal = 20.dp, top = 20.dp, bottom = 8.dp)
+                    modifier = Modifier.padding(start = 20.dp, top = 20.dp, end = 20.dp, bottom = 8.dp)
                 )
             }
 

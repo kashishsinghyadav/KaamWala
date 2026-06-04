@@ -86,9 +86,12 @@ dependencies {
   implementation(libs.retrofit)
   implementation(libs.retrofit.converter.kotlinx.serialization)
   implementation(libs.okhttp)
-  implementation(libs.okhttp.logging-interceptor)
+  implementation(libs.okhttp.logging.interceptor)
   implementation(libs.kotlinx.serialization.json)
 
   // Image Loading
   implementation(libs.coil.compose)
+
+  // Icons
+  implementation(libs.androidx.compose.material.icons.core)
 }

@@ -24,4 +24,30 @@ class MainScreenViewModelTest {
 
 private class FakeMyModelRepository : DataRepository {
   override val data: Flow<List<String>> = flow { emit(listOf("Sample")) }
+
+  override suspend fun searchWorkers(
+    category: String?,
+    city: String?,
+    sortBy: String?,
+    page: Int,
+    size: Int
+  ) = com.example.kaamwala.data.model.ApiResponse(
+    success = true,
+    message = "Success",
+    data = com.example.kaamwala.data.model.PagedResponse<com.example.kaamwala.data.model.WorkerProfileResponse>()
+  )
+
+  override suspend fun getWorkerProfile(workerId: String) =
+    com.example.kaamwala.data.model.ApiResponse(
+      success = true,
+      message = "Success",
+      data = com.example.kaamwala.data.model.WorkerProfileResponse("", "", "")
+    )
+
+  override suspend fun getWorkerPortfolio(workerId: String) =
+    com.example.kaamwala.data.model.ApiResponse(
+      success = true,
+      message = "Success",
+      data = emptyList<com.example.kaamwala.data.model.PortfolioResponse>()
+    )
 }
