@@ -23,6 +23,17 @@ import com.example.kaamwala.Dashboard
 import com.example.kaamwala.Register
 import com.example.kaamwala.ui.discovery.*
 import com.example.kaamwala.ui.discovery.WorkerDiscoveryViewModel
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.kaamwala.theme.KaamWalaTheme
+import com.example.kaamwala.data.DataRepository
+import com.example.kaamwala.data.model.ApiResponse
+import com.example.kaamwala.data.model.PagedResponse
+import com.example.kaamwala.data.model.PortfolioResponse
+import com.example.kaamwala.data.model.WorkerProfileResponse
+import com.example.kaamwala.data.model.AuthResponse
+import com.example.kaamwala.data.model.UpdateWorkerProfileRequest
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 @Composable
 fun LoginScreen(
@@ -319,5 +330,31 @@ fun LoginScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    val previewRepository = object : DataRepository {
+        override val data: Flow<List<String>> = flow { emit(emptyList()) }
+        override suspend fun searchWorkers(c: String?, cy: String?, s: String?, p: Int, sz: Int) = 
+            ApiResponse(true, "Success", PagedResponse<WorkerProfileResponse>())
+        override suspend fun getWorkerProfile(id: String) = 
+            ApiResponse(true, "Success", WorkerProfileResponse("", "", ""))
+        override suspend fun getWorkerPortfolio(id: String) = 
+            ApiResponse(true, "Success", emptyList<PortfolioResponse>())
+        override suspend fun sendOtp(phone: String) = 
+            ApiResponse(true, "Success", "123456")
+        override suspend fun verifyOtp(phone: String, otp: String, name: String?, role: String?) = 
+            ApiResponse(true, "Success", AuthResponse("", "", "", "", "", false))
+        override suspend fun updateWorkerProfile(request: UpdateWorkerProfileRequest) = 
+            ApiResponse(true, "Success", WorkerProfileResponse("", "", ""))
+    }
+    KaamWalaTheme {
+        LoginScreen(
+            viewModel = WorkerDiscoveryViewModel(previewRepository),
+            onNavigate = {}
+        )
     }
 }
