@@ -14,6 +14,7 @@ import com.example.kaamwala.ui.discovery.DashboardScreen
 import com.example.kaamwala.ui.discovery.WorkerDiscoveryViewModel
 import com.example.kaamwala.ui.discovery.WorkerListScreen
 import com.example.kaamwala.ui.discovery.WorkerProfileScreen
+import com.example.kaamwala.ui.discovery.WorkerDashboardScreen
 
 @Composable
 fun MainNavigation() {
@@ -64,6 +65,13 @@ fun MainNavigation() {
                     workerId = key.workerId,
                     viewModel = discoveryViewModel,
                     onBack = { backStack.removeLastOrNull() },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            entry<WorkerDashboard> {
+                WorkerDashboardScreen(
+                    viewModel = discoveryViewModel,
+                    onNavigate = { navKey -> backStack.add(navKey) },
                     modifier = Modifier.fillMaxSize()
                 )
             }

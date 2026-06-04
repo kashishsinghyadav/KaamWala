@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
@@ -113,7 +114,7 @@ fun DashboardScreen(
             containerColor = BackgroundNavy,
             text = {
                 Column {
-                    listOf("Kanpur", "Delhi NCR").forEach { cityName ->
+                    listOf("Kanpur", "Delhi NCR", "Mumbai", "Bengaluru", "Noida", "Gurgaon", "Lucknow").forEach { cityName ->
                         val isSelected = activeCity == cityName
                         Row(
                             modifier = Modifier
@@ -206,29 +207,56 @@ fun DashboardScreen(
                     )
                 }
 
-                // Clickable location display
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(GlassBg)
-                        .border(1.dp, GlassBorder, RoundedCornerShape(12.dp))
-                        .clickable { showLocationDialog = true }
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Location",
-                        tint = NeonCyan,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = activeCity,
-                        color = TextPrimary,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    // Clickable location display
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(GlassBg)
+                            .border(1.dp, GlassBorder, RoundedCornerShape(12.dp))
+                            .clickable { showLocationDialog = true }
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = "Location",
+                            tint = NeonCyan,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = activeCity,
+                            color = TextPrimary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    // Logout button
+                    IconButton(
+                        onClick = {
+                            com.example.kaamwala.data.SessionManager.token = null
+                            com.example.kaamwala.data.SessionManager.userRole = null
+                            com.example.kaamwala.data.SessionManager.userName = null
+                            com.example.kaamwala.data.SessionManager.userPhone = null
+                            onNavigate(com.example.kaamwala.Login)
+                        },
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = GlassBg),
+                        modifier = Modifier
+                            .size(36.dp)
+                            .border(1.dp, GlassBorder, RoundedCornerShape(12.dp))
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ExitToApp,
+                            contentDescription = "Logout",
+                            tint = NeonMagenta,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
             }
 
