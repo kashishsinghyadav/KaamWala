@@ -88,4 +88,7 @@ dependencies {
   implementation(libs.okhttp)
   implementation(libs.okhttp.logging-interceptor)
   implementation(libs.kotlinx.serialization.json)
+
+  // Image Loading
+  implementation(libs.coil.compose)
 }

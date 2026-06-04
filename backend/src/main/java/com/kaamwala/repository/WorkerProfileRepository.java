@@ -92,13 +92,13 @@ public interface WorkerProfileRepository extends JpaRepository<WorkerProfile, UU
     @Query("SELECT DISTINCT wp FROM WorkerProfile wp " +
            "JOIN wp.user u " +
            "LEFT JOIN wp.skills s " +
-           "LEFT JOIN wp.serviceAreas sa " +
            "WHERE u.isActive = true " +
            "AND wp.availabilityStatus = com.kaamwala.entity.WorkerProfile.AvailabilityStatus.AVAILABLE " +
            "AND (:category IS NULL OR s = :category) " +
-           "AND (:city IS NULL OR LOWER(sa) LIKE LOWER(CONCAT('%', :city, '%')))")
+           "AND (:hasCity = false OR EXISTS (SELECT sa FROM wp.serviceAreas sa WHERE LOWER(sa) LIKE LOWER(CONCAT('%', :city, '%'))))")
     Page<WorkerProfile> searchWorkers(
             @Param("category") ServiceCategory category,
             @Param("city") String city,
+            @Param("hasCity") boolean hasCity,
             Pageable pageable);
 }

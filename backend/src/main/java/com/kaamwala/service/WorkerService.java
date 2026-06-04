@@ -223,7 +223,9 @@ public class WorkerService {
             int size,
             Sort sort) {
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<WorkerProfile> workerPage = workerProfileRepository.searchWorkers(category, city, pageable);
+        boolean hasCity = city != null && !city.trim().isEmpty();
+        String cityQuery = hasCity ? city.trim() : "";
+        Page<WorkerProfile> workerPage = workerProfileRepository.searchWorkers(category, cityQuery, hasCity, pageable);
 
         List<WorkerProfileResponse> content = workerPage.getContent().stream()
                 .map(wp -> mapToProfileResponse(wp.getUser(), wp))
