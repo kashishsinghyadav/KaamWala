@@ -34,7 +34,7 @@ CREATE TYPE verification_status AS ENUM ('PENDING', 'VERIFIED', 'REJECTED');
 CREATE TABLE users (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name            VARCHAR(100),
-    phone           VARCHAR(15) NOT NULL UNIQUE,
+    phone           VARCHAR(15) NOT NULL,
     email           VARCHAR(150),
     avatar_url      VARCHAR(500),
     role            VARCHAR(20) NOT NULL,
@@ -43,10 +43,11 @@ CREATE TABLE users (
     is_active       BOOLEAN NOT NULL DEFAULT TRUE,
     fcm_token       VARCHAR(500),
     created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
+    updated_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT unique_phone_role UNIQUE (phone, role)
 );
 
-CREATE UNIQUE INDEX idx_user_phone ON users (phone);
+CREATE UNIQUE INDEX idx_user_phone_role ON users (phone, role);
 CREATE INDEX idx_user_role ON users (role);
 CREATE INDEX idx_user_location ON users (latitude, longitude);
 
