@@ -57,3 +57,19 @@ data class PagedResponse<T>(
     val totalPages: Int = 0,
     val last: Boolean = true
 )
+
+/**
+ * Request body for updating a worker's profile.
+ */
+@Serializable
+data class UpdateWorkerProfileRequest(
+    val name: String? = null,
+    val email: String? = null,
+    val bio: String? = null,
+    val skills: List<String> = emptyList(),
+    val serviceAreas: List<String> = emptyList(),
+    val startingPrice: Double? = null,
+    val availabilityStatus: String? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null
+)

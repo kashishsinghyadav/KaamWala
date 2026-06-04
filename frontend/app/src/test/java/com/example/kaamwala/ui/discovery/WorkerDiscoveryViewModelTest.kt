@@ -5,6 +5,8 @@ import com.example.kaamwala.data.model.ApiResponse
 import com.example.kaamwala.data.model.PagedResponse
 import com.example.kaamwala.data.model.PortfolioResponse
 import com.example.kaamwala.data.model.WorkerProfileResponse
+import com.example.kaamwala.data.model.AuthResponse
+import com.example.kaamwala.data.model.UpdateWorkerProfileRequest
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
@@ -159,5 +161,17 @@ private class FakeWorkerRepository : DataRepository {
     override suspend fun getWorkerPortfolio(workerId: String): ApiResponse<List<PortfolioResponse>> {
         portfolioIdCalled = workerId
         return portfolioResponse
+    }
+
+    override suspend fun sendOtp(phone: String): ApiResponse<String> {
+        return ApiResponse(true, "Success", "123456")
+    }
+
+    override suspend fun verifyOtp(phone: String, otp: String, name: String?, role: String?): ApiResponse<AuthResponse> {
+        return ApiResponse(true, "Success", AuthResponse("token", "123", name ?: "Test", phone, role ?: "CUSTOMER", false))
+    }
+
+    override suspend fun updateWorkerProfile(request: UpdateWorkerProfileRequest): ApiResponse<WorkerProfileResponse> {
+        return ApiResponse(true, "Success", WorkerProfileResponse("123", request.name ?: "Test", ""))
     }
 }

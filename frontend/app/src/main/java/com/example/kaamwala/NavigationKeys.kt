@@ -10,3 +10,7 @@ import kotlinx.serialization.Serializable
 @Serializable data class WorkerList(val category: String) : NavKey
 
 @Serializable data class WorkerProfile(val workerId: String) : NavKey
+
+@Serializable data object Login : NavKey
+
+@Serializable data object Register : NavKey

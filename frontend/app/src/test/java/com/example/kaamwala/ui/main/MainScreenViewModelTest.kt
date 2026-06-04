@@ -50,4 +50,22 @@ private class FakeMyModelRepository : DataRepository {
       message = "Success",
       data = emptyList<com.example.kaamwala.data.model.PortfolioResponse>()
     )
+
+  override suspend fun sendOtp(phone: String) = com.example.kaamwala.data.model.ApiResponse(
+    success = true,
+    message = "Success",
+    data = "123456"
+  )
+
+  override suspend fun verifyOtp(phone: String, otp: String, name: String?, role: String?) = com.example.kaamwala.data.model.ApiResponse(
+    success = true,
+    message = "Success",
+    data = com.example.kaamwala.data.model.AuthResponse("token", "123", name ?: "Test", phone, role ?: "CUSTOMER", false)
+  )
+
+  override suspend fun updateWorkerProfile(request: com.example.kaamwala.data.model.UpdateWorkerProfileRequest) = com.example.kaamwala.data.model.ApiResponse(
+    success = true,
+    message = "Success",
+    data = com.example.kaamwala.data.model.WorkerProfileResponse("123", request.name ?: "Test", "")
+  )
 }

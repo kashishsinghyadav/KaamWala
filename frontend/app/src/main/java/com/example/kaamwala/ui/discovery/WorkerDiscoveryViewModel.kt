@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+import com.example.kaamwala.data.SessionManager
+
 sealed interface WorkerListUiState {
     data object Loading : WorkerListUiState
     data class Success(val workers: List<WorkerProfileResponse>) : WorkerListUiState
@@ -29,11 +31,107 @@ class WorkerDiscoveryViewModel(
     private val repository: DataRepository
 ) : ViewModel() {
 
+    val selectedCity = MutableStateFlow(SessionManager.userCity)
+
+    fun setCity(city: String) {
+        SessionManager.userCity = city
+        selectedCity.value = city
+    }
+
     private val _workerListState = MutableStateFlow<WorkerListUiState>(WorkerListUiState.Loading)
     val workerListState: StateFlow<WorkerListUiState> = _workerListState.asStateFlow()
 
     private val _workerProfileState = MutableStateFlow<WorkerProfileUiState>(WorkerProfileUiState.Loading)
     val workerProfileState: StateFlow<WorkerProfileUiState> = _workerProfileState.asStateFlow()
+
+    fun bypassLogin(role: String, onSuccess: () -> Unit) {
+        SessionManager.token = "dev-bypass-token"
+        SessionManager.userRole = role
+        if (role == "WORKER") {
+            SessionManager.userName = "Ramesh Kumar"
+            SessionManager.userPhone = "+919876543201"
+        } else {
+            SessionManager.userName = "Test Customer"
+            SessionManager.userPhone = "+919999999999"
+        }
+        onSuccess()
+    }
+
+    fun sendOtp(phone: String, onCodeSent: (String) -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = repository.sendOtp(phone)
+                if (response.success && response.data != null) {
+                    onCodeSent(response.data)
+                } else {
+                    onError(response.message ?: "Failed to send OTP")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "An unexpected error occurred")
+            }
+        }
+    }
+
+    fun verifyOtp(
+        phone: String,
+        otp: String,
+        name: String? = null,
+        role: String? = null,
+        onSuccess: (Boolean) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val response = repository.verifyOtp(phone, otp, name, role)
+                if (response.success && response.data != null) {
+                    val auth = response.data
+                    SessionManager.token = auth.token
+                    SessionManager.userRole = auth.role
+                    SessionManager.userName = auth.name
+                    SessionManager.userPhone = auth.phone
+                    onSuccess(auth.newUser)
+                } else {
+                    onError(response.message ?: "Invalid OTP code")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Verification failed")
+            }
+        }
+    }
+
+    fun updateWorkerProfile(
+        name: String,
+        email: String,
+        bio: String,
+        skills: List<String>,
+        serviceAreas: List<String>,
+        startingPrice: Double,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val request = com.example.kaamwala.data.model.UpdateWorkerProfileRequest(
+                    name = name,
+                    email = email,
+                    bio = bio,
+                    skills = skills,
+                    serviceAreas = serviceAreas,
+                    startingPrice = startingPrice,
+                    availabilityStatus = "AVAILABLE"
+                )
+                val response = repository.updateWorkerProfile(request)
+                if (response.success) {
+                    SessionManager.userName = name
+                    onSuccess()
+                } else {
+                    onError(response.message ?: "Failed to update profile")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Profile update error")
+            }
+        }
+    }
 
     // Cache parameters to re-trigger search when sorting/filtering changes
     private var currentCategory: String? = null

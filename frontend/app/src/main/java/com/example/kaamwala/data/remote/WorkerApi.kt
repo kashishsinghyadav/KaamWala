@@ -4,7 +4,10 @@ import com.example.kaamwala.data.model.ApiResponse
 import com.example.kaamwala.data.model.PagedResponse
 import com.example.kaamwala.data.model.PortfolioResponse
 import com.example.kaamwala.data.model.WorkerProfileResponse
+import com.example.kaamwala.data.model.UpdateWorkerProfileRequest
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -31,4 +34,9 @@ interface WorkerApi {
     suspend fun getWorkerPortfolio(
         @Path("id") workerId: String
     ): ApiResponse<List<PortfolioResponse>>
+
+    @PUT("api/workers/profile")
+    suspend fun updateProfile(
+        @Body request: UpdateWorkerProfileRequest
+    ): ApiResponse<WorkerProfileResponse>
 }

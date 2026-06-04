@@ -11,10 +11,12 @@ import java.util.concurrent.TimeUnit
 /**
  * Singleton Retrofit Client configuration.
  */
+import com.example.kaamwala.data.SessionManager
+
 object RetrofitClient {
 
-    // Android emulator matches host localhost at 10.0.2.2
-    private const val BASE_URL = "http://10.0.2.2:8080/"
+    // Use Mac's local IP address so physical devices on same Wi-Fi can connect
+    private const val BASE_URL = "http://192.168.1.7:8080/"
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -27,6 +29,14 @@ object RetrofitClient {
         }
 
         OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val original = chain.request()
+                val requestBuilder = original.newBuilder()
+                SessionManager.token?.let { jwtToken ->
+                    requestBuilder.header("Authorization", "Bearer $jwtToken")
+                }
+                chain.proceed(requestBuilder.build())
+            }
             .addInterceptor(loggingInterceptor)
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(15, TimeUnit.SECONDS)

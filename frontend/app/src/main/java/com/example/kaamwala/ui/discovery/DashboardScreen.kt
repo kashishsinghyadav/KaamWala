@@ -50,31 +50,99 @@ data class ServiceCategoryItem(
 
 @Composable
 fun DashboardScreen(
+    viewModel: WorkerDiscoveryViewModel,
     onNavigate: (NavKey) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val activeCity by viewModel.selectedCity.collectAsState()
+    var showLocationDialog by remember { mutableStateOf(false) }
+
     val categories = remember {
         listOf(
             ServiceCategoryItem(
-                "CARPENTER", "Carpenter", "Modular kitchens, door fittings & repairs",
+                "CARPENTER", "Carpenter", "Modular kitchens, wood works & repairs",
                 Icons.Default.Build, Color(0xFFF72585), Color(0xFF7209B7)
+            ),
+            ServiceCategoryItem(
+                "ELECTRICIAN", "Electrician", "House wiring, smart switches & faults",
+                Icons.Default.Settings, Color(0xFFFFB703), Color(0xFFFB8500)
             ),
             ServiceCategoryItem(
                 "PLUMBER", "Plumber", "Pipelines, blockages & bathroom fixtures",
                 Icons.Default.Build, Color(0xFF4361EE), Color(0xFF4CC9F0)
             ),
             ServiceCategoryItem(
-                "ELECTRICIAN", "Electrician", "House wiring, smart switches & inverters",
-                Icons.Default.Settings, Color(0xFFFFB703), Color(0xFFFB8500)
-            ),
-            ServiceCategoryItem(
-                "PAINTER", "Painter", "Emulsion painting, waterproofing & textures",
+                "PAINTER", "Painter", "Emulsion painting, putty & wall textures",
                 Icons.Default.Home, Color(0xFF7209B7), Color(0xFF3F37C9)
             ),
             ServiceCategoryItem(
-                "AC_TECHNICIAN", "AC Tech", "Cooling checks, servicing & fixing",
+                "AC_TECHNICIAN", "AC Tech", "Cooling checks, filter servicing & fixing",
                 Icons.Default.Settings, Color(0xFF00F5D4), Color(0xFF00BBF9)
+            ),
+            ServiceCategoryItem(
+                "HOME_CLEANING", "Home Cleaning", "Deep scrubbing, sanitizing & kitchen clean",
+                Icons.Default.Home, Color(0xFF4CAF50), Color(0xFF009688)
+            ),
+            ServiceCategoryItem(
+                "FURNITURE_MAKER", "Furniture Repair", "Sofa setups, dining repair & polishing",
+                Icons.Default.Build, Color(0xFFFF5722), Color(0xFFE91E63)
+            ),
+            ServiceCategoryItem(
+                "MASON", "Mason", "Brick works, tiles leveling & cement work",
+                Icons.Default.Build, Color(0xFF9E9E9E), Color(0xFF607D8B)
+            ),
+            ServiceCategoryItem(
+                "WELDER", "Welder", "Grilles, gates, railings & metal builds",
+                Icons.Default.Settings, Color(0xFFFFC107), Color(0xFFFF5722)
+            ),
+            ServiceCategoryItem(
+                "CCTV_INSTALLER", "CCTV Install", "Dome cameras, NVR configurations & wiring",
+                Icons.Default.Settings, Color(0xFF673AB7), Color(0xFF3F51B5)
+            ),
+            ServiceCategoryItem(
+                "RO_SERVICE", "RO Purifier", "RO filter change, TDS tune & servicing",
+                Icons.Default.Settings, Color(0xFF03A9F4), Color(0xFF00BCD4)
             )
+        )
+    }
+
+    if (showLocationDialog) {
+        AlertDialog(
+            onDismissRequest = { showLocationDialog = false },
+            title = { Text("Select Your Area", color = TextPrimary, fontWeight = FontWeight.Bold) },
+            containerColor = BackgroundNavy,
+            text = {
+                Column {
+                    listOf("Kanpur", "Delhi NCR").forEach { cityName ->
+                        val isSelected = activeCity == cityName
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (isSelected) NeonCyan.copy(alpha = 0.15f) else Color.Transparent)
+                                .clickable {
+                                    viewModel.setCity(cityName)
+                                    showLocationDialog = false
+                                }
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = cityName,
+                                color = if (isSelected) NeonCyan else TextPrimary,
+                                fontSize = 16.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLocationDialog = false }) {
+                    Text("Close", color = NeonCyan)
+                }
+            }
         )
     }
 
@@ -138,13 +206,14 @@ fun DashboardScreen(
                     )
                 }
 
-                // Quick location display
+                // Clickable location display
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
                         .background(GlassBg)
                         .border(1.dp, GlassBorder, RoundedCornerShape(12.dp))
+                        .clickable { showLocationDialog = true }
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
                     Icon(
@@ -155,7 +224,7 @@ fun DashboardScreen(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "Kanpur / Delhi NCR",
+                        text = activeCity,
                         color = TextPrimary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium
@@ -169,7 +238,7 @@ fun DashboardScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(110.dp)
+                    .height(100.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(
                         Brush.linearGradient(
@@ -187,9 +256,9 @@ fun DashboardScreen(
                     )
                     Text(
                         text = "Post a job and let local workers bid their price!",
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         color = Color.White.copy(alpha = 0.85f),
-                        modifier = Modifier.padding(top = 4.dp)
+                        modifier = Modifier.padding(top = 2.dp)
                     )
                 }
             }

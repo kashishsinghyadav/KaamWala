@@ -39,7 +39,7 @@ fun WorkerListScreen(
     onNavigate: (NavKey) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var searchQuery by remember { mutableStateOf("") }
+    var searchQuery by remember { mutableStateOf(viewModel.selectedCity.value) }
     var selectedSortBy by remember { mutableStateOf("price_asc") }
 
     // Initial load
