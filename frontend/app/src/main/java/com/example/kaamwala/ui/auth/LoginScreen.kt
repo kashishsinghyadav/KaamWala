@@ -32,6 +32,7 @@ import com.example.kaamwala.data.model.PortfolioResponse
 import com.example.kaamwala.data.model.WorkerProfileResponse
 import com.example.kaamwala.data.model.AuthResponse
 import com.example.kaamwala.data.model.UpdateWorkerProfileRequest
+import com.example.kaamwala.data.model.Notification
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -354,6 +355,10 @@ fun LoginScreenPreview() {
             ApiResponse(true, "Success", AuthResponse("", "", "", "", "", false))
         override suspend fun updateWorkerProfile(request: UpdateWorkerProfileRequest) = 
             ApiResponse(true, "Success", WorkerProfileResponse("", "", ""))
+        override suspend fun getNotifications(): ApiResponse<PagedResponse<Notification>> = 
+            ApiResponse(true, "Success", PagedResponse())
+        override suspend fun inquireWorker(workerId: String): ApiResponse<Unit?> = 
+            ApiResponse(true, "Success", null)
     }
     KaamWalaTheme {
         LoginScreen(

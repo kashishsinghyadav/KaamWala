@@ -36,12 +36,13 @@ fun WorkerDashboardScreen(
     onNavigate: (NavKey) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var name by remember { mutableStateOf(SessionManager.userName ?: "Worker") }
-    var email by remember { mutableStateOf("") }
-    var city by remember { mutableStateOf(SessionManager.userCity) }
-    var startingPrice by remember { mutableStateOf("500") }
-    var bio by remember { mutableStateOf("Professional hyperlocal worker offering premium services.") }
-    var selectedSkills by remember { mutableStateOf(setOf("CARPENTER")) }
+    val userId = SessionManager.userId
+    var name by remember(userId) { mutableStateOf(SessionManager.userName ?: "Worker") }
+    var email by remember(userId) { mutableStateOf("") }
+    var city by remember(userId) { mutableStateOf(SessionManager.userCity) }
+    var startingPrice by remember(userId) { mutableStateOf("500") }
+    var bio by remember(userId) { mutableStateOf("Professional hyperlocal worker offering premium services.") }
+    var selectedSkills by remember(userId) { mutableStateOf(setOf("CARPENTER")) }
 
     var cityDropdownExpanded by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
@@ -49,15 +50,14 @@ fun WorkerDashboardScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val profileState by viewModel.workerProfileState.collectAsState()
-    LaunchedEffect(Unit) {
-        val uid = SessionManager.userId
-        if (uid != null) {
-            viewModel.loadProfile(uid)
+    LaunchedEffect(userId) {
+        if (userId != null) {
+            viewModel.loadProfile(userId)
         }
         viewModel.fetchNotifications()
     }
 
-    var hasInitialized by remember { mutableStateOf(false) }
+    var hasInitialized by remember(userId) { mutableStateOf(false) }
     LaunchedEffect(profileState) {
         if (profileState is WorkerProfileUiState.Success && !hasInitialized) {
             val profile = (profileState as WorkerProfileUiState.Success).profile

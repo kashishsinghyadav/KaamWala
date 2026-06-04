@@ -34,6 +34,7 @@ import com.example.kaamwala.data.model.PortfolioResponse
 import com.example.kaamwala.data.model.WorkerProfileResponse
 import com.example.kaamwala.data.model.AuthResponse
 import com.example.kaamwala.data.model.UpdateWorkerProfileRequest
+import com.example.kaamwala.data.model.Notification
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -46,14 +47,15 @@ fun RegisterScreen(
 ) {
     val role = SessionManager.userRole ?: "CUSTOMER"
     
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var city by remember { mutableStateOf("Kanpur") }
+    val userId = SessionManager.userId
+    var name by remember(userId) { mutableStateOf("") }
+    var email by remember(userId) { mutableStateOf("") }
+    var city by remember(userId) { mutableStateOf("Kanpur") }
     
     // Worker specific inputs
-    var selectedSkills by remember { mutableStateOf(setOf("CARPENTER")) }
-    var startingPrice by remember { mutableStateOf("") }
-    var bio by remember { mutableStateOf("") }
+    var selectedSkills by remember(userId) { mutableStateOf(setOf("CARPENTER")) }
+    var startingPrice by remember(userId) { mutableStateOf("") }
+    var bio by remember(userId) { mutableStateOf("") }
 
     var categoryDropdownExpanded by remember { mutableStateOf(false) }
     var cityDropdownExpanded by remember { mutableStateOf(false) }
@@ -411,6 +413,10 @@ fun RegisterScreenPreview() {
             ApiResponse(true, "Success", AuthResponse("", "", "", "", "", false))
         override suspend fun updateWorkerProfile(request: UpdateWorkerProfileRequest) = 
             ApiResponse(true, "Success", WorkerProfileResponse("", "", ""))
+        override suspend fun getNotifications(): ApiResponse<PagedResponse<Notification>> = 
+            ApiResponse(true, "Success", PagedResponse())
+        override suspend fun inquireWorker(workerId: String): ApiResponse<Unit?> = 
+            ApiResponse(true, "Success", null)
     }
     KaamWalaTheme {
         RegisterScreen(
