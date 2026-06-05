@@ -2955,6 +2955,68 @@ The development of the discovery module is fully verified by an automated test s
 
 ---
 
+## 12. Local Development Setup & Collaboration Guide
+
+This guide outlines the prerequisites, installation steps, and testing workflows required for any developer to collaborate and run the **KaamWala** project locally.
+
+### 12.1 Prerequisites
+Make sure the following tools are installed on your machine:
+- **Java Development Kit (JDK)**: JDK 21 (Temurin LTS recommended)
+- **Docker & Docker Compose**: For running PostgreSQL (with PostGIS extension) and Redis
+- **Maven**: Version 3.9+ (or use the packaged wrapper)
+- **Android Studio**: Android Studio Koala (2024.1.1) or newer
+- **Android SDK**: API level 33+ (configured in Android Studio)
+
+### 12.2 Database Setup
+The backend requires PostgreSQL (PostGIS) and Redis. Run them using Docker Compose:
+```bash
+cd backend
+docker compose up -d
+```
+- **PostgreSQL**: Port `5432`, Username: `postgres`, Password: `postgres`, Database: `kaamwala`
+- **Redis**: Port `6379`
+
+### 12.3 Running the Backend (Spring Boot)
+1. Set your `JAVA_HOME` to JDK 21.
+2. Navigate to the backend directory and launch the application:
+   ```bash
+   cd backend
+   mvn clean spring-boot:run
+   ```
+3. The backend runs on `http://localhost:8080`.
+4. Open Swagger API documentation at: `http://localhost:8080/swagger-ui/index.html`
+
+### 12.4 Running the Android App
+1. Open Android Studio and choose **Open an Existing Project**, then select the `frontend/app` folder.
+2. To compile and build the debug APK via the CLI:
+   ```bash
+   cd frontend/app
+   ./gradlew assembleDebug
+   ```
+   *Output Location:* `frontend/app/build/outputs/apk/debug/app-debug.apk`
+3. **Backend Loopback URL**: By default, the Android app Retrofit client calls `http://10.0.2.2:8080/` which automatically routes requests from the Android Virtual Device (AVD) back to your local host machine's port `8080`.
+4. Install the build directly on a running emulator using:
+   ```bash
+   adb install -r build/outputs/apk/debug/app-debug.apk
+   ```
+
+### 12.5 Hardcoded Developer Testing Bypasses
+In Developer Mode (default configuration), you can test features without requiring real SMS OTP services:
+
+- **Pre-configured Accounts (Testing credentials)**:
+  - **Phone**: `9565522917`
+  - **OTP**: `123456`
+  - **Customer Flow**: Log in under the **Customer** tab. You can search for services, browse worker details/portfolios, and click **Book Service** to send booking inquiries.
+  - **Worker Flow**: Log in under the **Worker / Business** tab. It opens the pre-populated dashboard for worker **jagmeet**. You can check details and review booking requests from customers.
+- **Onboarding Flow (First-time worker profile creation)**:
+  - Enter any unregistered phone number.
+  - The validation OTP will show on-screen in a yellow box.
+  - Save worker skills/pricing to complete registration.
+- **Instant Login Bypasses**: 
+  - Tap the **Customer Bypass** or **Worker Bypass** buttons at the bottom of the Login Screen to skip phone and OTP entry entirely.
+
+---
+
 ## Quick Reference Card
 
 | Component | Technology | Version |
