@@ -3004,7 +3004,7 @@ docker compose up -d
 In Developer Mode (default configuration), you can test features without requiring real SMS OTP services:
 
 - **Pre-configured Accounts (Testing credentials)**:
-  - **Phone**: `9565522917`
+  - **Phone**: `#########`
   - **OTP**: `123456`
   - **Customer Flow**: Log in under the **Customer** tab. You can search for services, browse worker details/portfolios, and click **Book Service** to send booking inquiries.
   - **Worker Flow**: Log in under the **Worker / Business** tab. It opens the pre-populated dashboard for worker **jagmeet**. You can check details and review booking requests from customers.
